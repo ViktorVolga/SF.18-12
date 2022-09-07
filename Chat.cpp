@@ -1,49 +1,49 @@
-#include "Chat.h"
+п»ї#include "Chat.h"
 
-
-
-
-Chat::Chat() //конструктор
+Chat::Chat() //РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
 {
-	std::vector<User> _users; //Храним всех пользователей в векторе
-	std::unique_ptr<User> _currentUser = nullptr; //текущий пользватель
+	std::vector<User> _users; //РҐСЂР°РЅРёРј РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РІ РІРµРєС‚РѕСЂРµ
+	std::unique_ptr<User> _currentUser = nullptr; //С‚РµРєСѓС‰РёР№ РїРѕР»СЊР·РІР°С‚РµР»СЊ
 	std::fstream user_file = std::fstream("users.txt", std::ios::in | std::ios::out); //for saving users in the file
+	
 	if (!user_file) { //if file isnt exist - creat it
-		user_file = std::fstream("users.txt", std::ios::in | std::ios::out | std::ios::trunc); 
+		user_file = std::fstream("users.txt", std::ios::in | std::ios::out | std::ios::trunc);
 	}
-	else {
-		User user("v", "q", "1");
-		user_file >> user;
-		
+	get_users_from_file();
+	if (!message_file) { //if file isnt exist - creat it
+		message_file = std::fstream("messages.txt", std::ios::in | std::ios::out | std::ios::trunc);
 	}
+	get_messages_from_file();	
+	message_file.close();
 }
 
 void Chat::start()
 {
 	_chatWorking = true;
+	
 }
 
 void Chat::menu()
 {
 	_currentUser = nullptr;
-	std::cout << std::endl; //разрыв строки для красоты
+	std::cout << std::endl; //СЂР°Р·СЂС‹РІ СЃС‚СЂРѕРєРё РґР»СЏ РєСЂР°СЃРѕС‚С‹
 	std::cout << "Main menu" << std::endl;
 	std::cout << "1 - logIn | 2 - registracion | 3 - quit" << std::endl;
-	unsigned int choice(0); // переменная для выбора
-	std::cin >> choice; //пользователь вводит что хочет
-	switch (choice) //оператор выбора
+	unsigned int choice(0); // РїРµСЂРµРјРµРЅРЅР°СЏ РґР»СЏ РІС‹Р±РѕСЂР°
+	std::cin >> choice; //РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РІРІРѕРґРёС‚ С‡С‚Рѕ С…РѕС‡РµС‚
+	switch (choice) //РѕРїРµСЂР°С‚РѕСЂ РІС‹Р±РѕСЂР°
 	{
-	case 1:
-		login(); //запускает процесс авторизации
-		break;
-	case 2:
-		registracion(); //запускает процесс регистрации
-		break;
-	case 3:
-		_chatWorking = false; // выключает чат
-		break;
-	default:
-		break;
+		case 1:
+			login(); //Р·Р°РїСѓСЃРєР°РµС‚ РїСЂРѕС†РµСЃСЃ Р°РІС‚РѕСЂРёР·Р°С†РёРё
+			break;
+		case 2:
+			registracion(); //Р·Р°РїСѓСЃРєР°РµС‚ РїСЂРѕС†РµСЃСЃ СЂРµРіРёСЃС‚СЂР°С†РёРё
+			break;
+		case 3:
+			_chatWorking = false; // РІС‹РєР»СЋС‡Р°РµС‚ С‡Р°С‚
+			break;
+		default:
+			break;
 	}
 }
 
@@ -53,24 +53,25 @@ void Chat::login()
 	std::cout << std::endl;
 	std::cout << "Enter your login" << std::endl;
 	std::cin >> login;
+	
 	std::cout << "Enter your password" << std::endl;
 	std::cin >> pass;
-	while (_currentUser == nullptr) //До тех пор пока не залогинится пользователь
+	while (_currentUser == nullptr) //Р”Рѕ С‚РµС… РїРѕСЂ РїРѕРєР° РЅРµ Р·Р°Р»РѕРіРёРЅРёС‚СЃСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ
 	{
 		try
 		{
-			//проверяем есть ли такой логин
+			//РїСЂРѕРІРµСЂСЏРµРј РµСЃС‚СЊ Р»Рё С‚Р°РєРѕР№ Р»РѕРіРёРЅ
 			_currentUser = getUserByLogin(login);
 		}
 		catch (Badlogin& bu)
 		{
 			bu.Show();
 			_currentUser = nullptr;
-			//если нету - ловим исключение и присваиваем nullptr текущему пользователю
+			//РµСЃР»Рё РЅРµС‚Сѓ - Р»РѕРІРёРј РёСЃРєР»СЋС‡РµРЅРёРµ Рё РїСЂРёСЃРІР°РёРІР°РµРј nullptr С‚РµРєСѓС‰РµРјСѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ
 		}
 		if (chekUserPass(login, pass) == false && _currentUser != nullptr)
 		{
-			//если пользователь есть но введен неправильный пароль
+			//РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РµСЃС‚СЊ РЅРѕ РІРІРµРґРµРЅ РЅРµРїСЂР°РІРёР»СЊРЅС‹Р№ РїР°СЂРѕР»СЊ
 			std::cout << std::endl;
 			std::cout << "password is wrong " << std::endl;
 			std::cout << "please Enter (1) for registracion" << std::endl;
@@ -88,7 +89,7 @@ void Chat::login()
 		}
 		if (_currentUser == nullptr)
 		{
-			//Если пользователь не зарегестрирован
+			//Р•СЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ Р·Р°СЂРµРіРµСЃС‚СЂРёСЂРѕРІР°РЅ
 			std::cout << std::endl;
 			std::cout << "please Enter (1) for registracion" << std::endl;
 			std::cout << "or Enter (anyKey) to repiat login" << std::endl;
@@ -104,13 +105,13 @@ void Chat::login()
 			}
 		}
 		if (_users.size() == 0)
-			// Если ни один пользователь не зарегестрирован еще
+			// Р•СЃР»Рё РЅРё РѕРґРёРЅ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ Р·Р°СЂРµРіРµСЃС‚СЂРёСЂРѕРІР°РЅ РµС‰Рµ
 		{
 			registracion();
 		}
 		if (chekUserPass(login, pass) == true)
 		{
-			//Если введен правльный логин и пароль
+			//Р•СЃР»Рё РІРІРµРґРµРЅ РїСЂР°РІР»СЊРЅС‹Р№ Р»РѕРіРёРЅ Рё РїР°СЂРѕР»СЊ
 			userMenu();
 			break;
 		}
@@ -118,7 +119,7 @@ void Chat::login()
 }
 
 void Chat::registracion()
-//регистрация
+//СЂРµРіРёСЃС‚СЂР°С†РёСЏ
 {
 	std::cout << std::endl;
 	std::cout << "registracion started" << std::endl;
@@ -126,8 +127,8 @@ void Chat::registracion()
 	std::string login, pass, name;
 	std::cin >> login;
 	if (_users.size() != 0)
-		//Если есть хотя бы один зарегестрированный пользователь
-		//Проверяем занят ли логин
+		//Р•СЃР»Рё РµСЃС‚СЊ С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ Р·Р°СЂРµРіРµСЃС‚СЂРёСЂРѕРІР°РЅРЅС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ
+		//РџСЂРѕРІРµСЂСЏРµРј Р·Р°РЅСЏС‚ Р»Рё Р»РѕРіРёРЅ
 	{
 		try
 		{
@@ -135,14 +136,14 @@ void Chat::registracion()
 		}
 		catch (Badlogin)
 		{
-			//логин свободен - ловим исключние и присваиваем нуль птр текущему пользователю
+			//Р»РѕРіРёРЅ СЃРІРѕР±РѕРґРµРЅ - Р»РѕРІРёРј РёСЃРєР»СЋС‡РЅРёРµ Рё РїСЂРёСЃРІР°РёРІР°РµРј РЅСѓР»СЊ РїС‚СЂ С‚РµРєСѓС‰РµРјСѓ РїРѕР»СЊР·РѕРІР°С‚РµР»СЋ
 			_currentUser = nullptr;
 		}
 
 	}
 	while (_currentUser != nullptr)
 	{
-		//Пока мы в регистрации но пытаемся зарегестрировать уже использующийся логин
+		//РџРѕРєР° РјС‹ РІ СЂРµРіРёСЃС‚СЂР°С†РёРё РЅРѕ РїС‹С‚Р°РµРјСЃСЏ Р·Р°СЂРµРіРµСЃС‚СЂРёСЂРѕРІР°С‚СЊ СѓР¶Рµ РёСЃРїРѕР»СЊР·СѓСЋС‰РёР№СЃСЏ Р»РѕРіРёРЅ
 		std::cout << std::endl;
 		std::cout << "current login already busy" << std::endl;
 		std::cout << "if you already has registracion enter (1)" << std::endl;
@@ -172,28 +173,28 @@ void Chat::registracion()
 	}
 	if (_currentUser == nullptr)
 	{
-		//Если логин свободне
+		//Р•СЃР»Рё Р»РѕРіРёРЅ СЃРІРѕР±РѕРґРµРЅ
 		std::cout << "please enter your password" << std::endl;
 		std::cin >> pass;
 		std::cout << "please enter your name" << std::endl;
 		std::cin >> name;
 		User a(name, login, pass);
-		_users.push_back(a); //отправляем в вектор нового пользователя
+		_users.push_back(a); //РѕС‚РїСЂР°РІР»СЏРµРј РІ РІРµРєС‚РѕСЂ РЅРѕРІРѕРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+		push_new_user(a); //put new user to the file
 	}
-
 }
 
 std::unique_ptr<User> Chat::getUserByLogin(const std::string& login) const
 {
-	for (size_t i = 0; i < _users.size(); ++i) //пробегаем по всем юзерам
+	for (size_t i = 0; i < _users.size(); ++i) //РїСЂРѕР±РµРіР°РµРј РїРѕ РІСЃРµРј СЋР·РµСЂР°Рј
 	{
 		if (login == _users[i].getLogin())
 		{
-			//возвращаем указатель если есть такой логин
+			//РІРѕР·РІСЂР°С‰Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РµСЃР»Рё РµСЃС‚СЊ С‚Р°РєРѕР№ Р»РѕРіРёРЅ
 			return std::make_unique<User>(_users[i]);
 		}
 	}
-	//генерируем исключение если не найден пользователь
+	//РіРµРЅРµСЂРёСЂСѓРµРј РёСЃРєР»СЋС‡РµРЅРёРµ РµСЃР»Рё РЅРµ РЅР°Р№РґРµРЅ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ
 	throw Badlogin(login);
 }
 
@@ -251,13 +252,14 @@ void Chat::createMessage()
 		std::cout << "Enter recepient's login" << std::endl;
 		std::cin >> to;
 	}
-
 	std::cout << "Enter message:" << std::endl;
 	std::cin.ignore();
 	std::getline(std::cin, text);
 	from = _currentUser->getLogin();
 	Message a(from, to, text);
 	_messages.push_back(a);
+	push_new_message_to_file(a);
+	
 }
 
 bool Chat::checkLogin(const std::string& login)
@@ -288,12 +290,113 @@ bool Chat::chekUserPass(const std::string& login, const std::string& pass) const
 	return false;
 }
 
-void Chat::get_user() { //get users from users.txt
+
+
+void Chat::push_new_user(User& a) {  // put new user to the users.txt
+	if (user_file) {
+		user_file.seekg(0, std::ios_base::end); //going to the end
+		user_file << a;            //writing user to the file
+	}
+	else {
+		user_file = std::fstream("users.txt", std::ios::in | std::ios::out | std::ios::trunc);
+		std::cout << "File user.txt now opened, please close it and try again" << std::endl;		
+	}	
+} 
+
+void Chat::get_users_from_file() { //get all users from users.txt
+	std::string text; //initializating needed string	
+	std::getline(user_file, text); //reading all users to the string text
+	std::string name, login, pass; //initializating needed string	
+	int count = 0;
+	while (count < text.length()) {
+		for (int i = 0; i < text.length(); i++)
+		{
+			if (text[count] != ' ') {
+				
+				name.push_back(text[count]);
+				count++;
+			}
+			else {
+				count++;
+				break;
+			}
+		}
+		for (int i = 0; i < text.length(); i++)
+		{
+			if (text[count] != ' ') {
+				
+				login.push_back(text[count]);
+				count++;
+			}
+			else {
+				count++;
+				break;
+			}
+		}
+		for (int i = 0; i < text.length(); i++)
+		{
+			if (text[count] != ' ') {
+				
+				pass.push_back(text[count]);
+				if (count == text.length())
+					break;
+				count++;
+			}
+			else {
+				if (count == text.length())
+					break;
+				count++;
+				break;
+			}
+		}
+		User a(name, login, pass); //create new USER
+		_users.push_back(a); //put user to the vector
+		name.erase(); //clearing string
+		login.erase(); //clearing string
+		pass.erase(); //clearing string
+	}
+}
+
+void Chat::push_new_message_to_file(Message& a) { 
+	if (message_file) { //if message_file is exist
+		message_file.seekp(0, std::ios_base::end); //going to the end
+		message_file << a; //writing message to the file
+	}
+	else {
+		message_file = std::fstream("messages.txt", std::ios::in | std::ios::out | std::ios::trunc); //create message file
+		
+		message_file << a;  //writing message to the file
+	}
+}
+
+void Chat::get_messages_from_file() { //get all messages to the file
+	std::string get, from, to, message; 
+	std::vector<std::string> _lines; //useing vector for saving strings
+	while (getline(message_file, get)) { //while message_file not end
+		_lines.push_back(get); //adding strings to the vector
+	}		
+	for (const auto l : _lines) { //parsing
+		int count = 0;
+		while (l[count] != ' ') { 
+			from.push_back(l[count++]);
+		}
+		count++;
+		while (l[count] != ' ') {
+			to.push_back(l[count++]);
+		}
+		count++;
+		while (count < (l.length() - 2)) {
+			message.push_back(l[count++]);
+		}
+		Message a(from, to, message);
+		_messages.push_back(a);	
+		from.clear();
+		to.clear();
+		message.clear();
+	}
+}
+	
+	
 	
 
-}
-
-void Chat::get_users() { //get users from users.txt
-
-}
 

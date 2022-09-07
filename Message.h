@@ -1,12 +1,14 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <fstream>
+
 
 class Message
 {
-	const std::string _from;
-	const std::string _to;
-	const std::string _text;
+	std::string _from;
+	std::string _to;
+	std::string _text;
 public:
 	Message(const std::string& from, const std::string& to, const std::string& text) :
 		_from(from), _to(to), _text(text) {};
@@ -24,6 +26,22 @@ public:
 	const std::string& get_To() const
 	{
 		return _to;
+	}
+
+	friend std::fstream& operator>>(std::fstream& is, Message& obj) {
+		is >> obj._from;
+		is >> obj._to;
+		is >> obj._text;
+		return is;
+	}
+
+	friend std::ostream& operator<<(std::fstream& os, Message& obj) {
+		os << obj._from;
+		os << ' ';
+		os << obj._to;
+		os << ' ';
+		os << obj._text << "/n" << std::endl;
+		return os;
 	}
 
 };

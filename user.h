@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 
+
 class User
 {
 	std::string _name;
@@ -10,5 +11,7 @@ public:
 	explicit User(const std::string& name, const std::string& logIn, const std::string& password) : _name(name), _logIn(logIn), _password(password) {};
 	const std::string& getLogin() const;
 	const std::string& getPass() const;
-	friend std::fstream &operator>>(std::fstream& is, User& obj);
+	friend std::fstream& operator>>(std::fstream& is, User& obj);
+	friend std::ostream& operator<<(std::fstream& os, User& obj);
+
 };

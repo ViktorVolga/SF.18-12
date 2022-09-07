@@ -5,7 +5,8 @@
 
 int main()
 {
-	Chat chat;
+	
+	Chat chat;	
 	chat.menu();
 	chat.start();
 	while (chat._chatWorking)

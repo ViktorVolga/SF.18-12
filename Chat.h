@@ -1,3 +1,4 @@
+п»ї#pragma once
 #pragma once
 #include <vector>
 #include "user.h"
@@ -6,37 +7,42 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
+#include <sstream>
 
 class Chat
 {
-	std::vector<User> _users; // Хранилище чата - хранит Юзеров 
-	std::vector<Message> _messages;		// Хранит сообщения
-public:	
+	std::vector<User> _users; // РҐСЂР°РЅРёР»РёС‰Рµ С‡Р°С‚Р° - С…СЂР°РЅРёС‚ Р®Р·РµСЂРѕРІ 
+	std::vector<Message> _messages;		// РҐСЂР°РЅРёС‚ СЃРѕРѕР±С‰РµРЅРёСЏ
+public:
 	std::fstream user_file = std::fstream("users.txt", std::ios::in | std::ios::out);
-	std::unique_ptr<User> _currentUser = nullptr; // Указатель на текущего пользователя
-	bool _chatWorking{ true }; // Индикатор работы чата
-	explicit Chat();//конструктор
-	void start(); //Начало
-	void menu(); //Главное меню
-	void login(); // Логин
-	void registracion(); //Регистрация
-	std::unique_ptr<User> getUserByLogin(const std::string& login) const; //проверка юзера в векторе
-	bool checkLogin(const std::string& login); // проверка логина
-	bool chekUserPass(const std::string& login, const std::string& pass) const; //проверка логина и пароля 
-	void userMenu(); // меню пользователя
-	void readMessages(); // чтение сообщений
-	void createMessage(); // создание сообщений
-	void get_user(); //get user from user.txt
-	void get_users(); //get Users from users.txt
+	std::fstream message_file = std::fstream("messages.txt", std::ios::in | std::ios::out);
+	std::unique_ptr<User> _currentUser = nullptr; // РЈРєР°Р·Р°С‚РµР»СЊ РЅР° С‚РµРєСѓС‰РµРіРѕ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+	bool _chatWorking{ true }; // РРЅРґРёРєР°С‚РѕСЂ СЂР°Р±РѕС‚С‹ С‡Р°С‚Р°
+	explicit Chat();//РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
+	void start(); //РќР°С‡Р°Р»Рѕ
+	void menu(); //Р“Р»Р°РІРЅРѕРµ РјРµРЅСЋ
+	void login(); // Р›РѕРіРёРЅ
+	void registracion(); //Р РµРіРёСЃС‚СЂР°С†РёСЏ
+	std::unique_ptr<User> getUserByLogin(const std::string& login) const; //РїСЂРѕРІРµСЂРєР° СЋР·РµСЂР° РІ РІРµРєС‚РѕСЂРµ
+	bool checkLogin(const std::string& login); // РїСЂРѕРІРµСЂРєР° Р»РѕРіРёРЅР°
+	bool chekUserPass(const std::string& login, const std::string& pass) const; //РїСЂРѕРІРµСЂРєР° Р»РѕРіРёРЅР° Рё РїР°СЂРѕР»СЏ 
+	void userMenu(); // РјРµРЅСЋ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ
+	void readMessages(); // С‡С‚РµРЅРёРµ СЃРѕРѕР±С‰РµРЅРёР№
+	void createMessage(); // СЃРѕР·РґР°РЅРёРµ СЃРѕРѕР±С‰РµРЅРёР№
+	void push_new_user(User& a); //pushing new user to user.txt
+	void get_users_from_file(); //get user from user.txt	
+	void push_new_message_to_file(Message& a); //pushing new message to the message file;
+	void get_messages_from_file(); //geating messages from file
+	
 };
 
-class Badlogin // Для исключений класс
+class Badlogin // Р”Р»СЏ РёСЃРєР»СЋС‡РµРЅРёР№ РєР»Р°СЃСЃ
 {
 private:
-	std::string _login; // ловит строку с логином  который уже есть (При регистрации проверка)
+	std::string _login; // Р»РѕРІРёС‚ СЃС‚СЂРѕРєСѓ СЃ Р»РѕРіРёРЅРѕРј  РєРѕС‚РѕСЂС‹Р№ СѓР¶Рµ РµСЃС‚СЊ (РџСЂРё СЂРµРіРёСЃС‚СЂР°С†РёРё РїСЂРѕРІРµСЂРєР°)
 public:
 	Badlogin(std::string login) : _login(login) {};
-	void Show() // функция выводит сообщение при поимке исключения.
+	void Show() // С„СѓРЅРєС†РёСЏ РІС‹РІРѕРґРёС‚ СЃРѕРѕР±С‰РµРЅРёРµ РїСЂРё РїРѕРёРјРєРµ РёСЃРєР»СЋС‡РµРЅРёСЏ.
 	{
 		std::cout << "Bad User catched. Police already going ( joke =) )" << std::endl;
 		std::cout << "this login is not reggistered: " << _login << std::endl;
