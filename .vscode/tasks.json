@@ -1,0 +1,27 @@
+
+{
+	"version": "2.0.0",    
+	"tasks": [
+		
+		{
+			"type": "cppbuild",
+			"label": "Compile",			
+			"command": "/usr/bin/g++",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-g",
+				"/home/viktor/c++/SF.18-12/*.cpp",
+				"-o",
+				"/home/viktor/c++/SF.18-12/test"
+			],
+			"options": {
+				"cwd": "${fileDirname}"
+			},
+			"problemMatcher": [
+				"$g++"
+			],
+			"group": "build",
+			"detail": "compiler: /usr/bin/g++"
+		}
+	]
+	}
