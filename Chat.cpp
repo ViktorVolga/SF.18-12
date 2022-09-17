@@ -4,17 +4,9 @@ Chat::Chat() //конструктор
 {
 	std::vector<User> _users; //Храним всех пользователей в векторе
 	std::unique_ptr<User> _currentUser = nullptr; //текущий пользватель
-	std::fstream user_file = std::fstream("users.txt", std::ios::in | std::ios::out); //for saving users in the file
-	
 	if (!user_file) { //if file isnt exist - creat it
 		user_file = std::fstream("users.txt", std::ios::in | std::ios::out | std::ios::trunc);
-	}
-	get_users_from_file();
-	if (!message_file) { //if file isnt exist - creat it
-		message_file = std::fstream("messages.txt", std::ios::in | std::ios::out | std::ios::trunc);
-	}
-	get_messages_from_file();	
-	message_file.close();
+	}	
 }
 
 void Chat::start()
@@ -28,7 +20,7 @@ void Chat::menu()
 	_currentUser = nullptr;
 	std::cout << std::endl; //разрыв строки для красоты
 	std::cout << "Main menu" << std::endl;
-	std::cout << "1 - logIn | 2 - registracion | 3 - quit" << std::endl;
+	std::cout << "1 - logIn | 2 - registracion | 3 - server |4 - quit" << std::endl;
 	unsigned int choice(0); // переменная для выбора
 	std::cin >> choice; //пользователь вводит что хочет
 	switch (choice) //оператор выбора
@@ -40,6 +32,9 @@ void Chat::menu()
 			registracion(); //запускает процесс регистрации
 			break;
 		case 3:
+			server_on();
+			break;
+		case 4:
 			_chatWorking = false; // выключает чат
 			break;
 		default:
@@ -355,6 +350,7 @@ void Chat::get_users_from_file() { //get all users from users.txt
 		login.erase(); //clearing string
 		pass.erase(); //clearing string
 	}
+	user_file.close();
 }
 
 void Chat::push_new_message_to_file(Message& a) { 
@@ -395,6 +391,73 @@ void Chat::get_messages_from_file() { //get all messages to the file
 		message.clear();
 	}
 }
+	
+void Chat::server_on(){
+get_users_from_file();
+if (!message_file) { //if file isnt exist - creat it
+	message_file = std::fstream("messages.txt", std::ios::in | std::ios::out | std::ios::trunc);
+}
+get_messages_from_file();	
+message_file.close();
+_inet.create_socket();
+_inet.create_bind();
+_inet.listening();
+_inet.connecting();
+int server_work_num = 1;
+		while (server_work_num){
+			memset(_inet.net_message, '0', MESSAGE_LENGTH);
+			read(_inet.connection, _inet.net_message, sizeof(_inet.net_message));
+			if (strncmp("101", _inet.net_message, 3) == 0) {
+                std::cout << "loggin request received" << std::endl;                
+                std::string text(_inet.net_message);
+				int login_status = check_log_and_pass(text);
+				memset(_inet.net_message, '0', MESSAGE_LENGTH);
+				if(login_status == 101){
+					std::cout << "loggin and pass is ok" << std::endl;
+					text.assign("101");					
+					ssize_t bytes = write(_inet.connection, text, sizeof(text));
+					 if(bytes >= 0)  {
+           				std::cout << "Answer successfully sent to the client.!" << std::endl;
+        				}
+					
+				}
+				if(login_status == 102){
+					std::cout << "pass incorrect" << std::endl;
+					text.assign("102");					
+					ssize_t bytes = write(_inet.connection, text, sizeof(text));
+					 if(bytes >= 0)  {
+           				std::cout << "Answer successfully sent to the client.!" << std::endl;
+        				}
+					
+				}
+				if(login_status == 103){
+					std::cout << "login incorrect" << std::endl;
+					text.assign("103");					
+					ssize_t bytes = write(_inet.connection, text, sizeof(text));
+					 if(bytes >= 0)  {
+           				std::cout << "Answer successfully sent to the client.!" << std::endl;
+        				}
+					
+				}		
+            }
+		}
+}
+int Chat::check_log_and_pass(const std::string& text){
+	size_t end_login = text.find(' ', 5) - 1;
+	size_t login_length = end_login - 4;
+	std::string login, pass; //initializating needed string	
+	login.insert(login_length, 5, end_login);
+	size_t end_pass = text.find(' ', (end_login + 2)) - 1;
+	size_t pass_length = end_pass - end_login;
+	pass.insert(pass_length, (end_login + 2), end_pass);
+	if (checkLogin(login)){
+		if (chekUserPass(login, pass)){
+			return 101; //login and pass is correct
+		}
+		return 102; //pass incorrect
+	}
+	return 103; //login incorrect
+}	
 	
 	
 	

@@ -8,14 +8,17 @@
 #include <fstream>
 #include <filesystem>
 #include <sstream>
+#include "net.h"
 
 class Chat
 {
 	std::vector<User> _users; // Хранилище чата - хранит Юзеров 
 	std::vector<Message> _messages;		// Хранит сообщения
-public:
+	net1 _inet;
 	std::fstream user_file = std::fstream("users.txt", std::ios::in | std::ios::out);
 	std::fstream message_file = std::fstream("messages.txt", std::ios::in | std::ios::out);
+public:
+	
 	std::unique_ptr<User> _currentUser = nullptr; // Указатель на текущего пользователя
 	bool _chatWorking{ true }; // Индикатор работы чата
 	explicit Chat();//конструктор
@@ -33,7 +36,8 @@ public:
 	void get_users_from_file(); //get user from user.txt	
 	void push_new_message_to_file(Message& a); //pushing new message to the message file;
 	void get_messages_from_file(); //geating messages from file
-	
+	void server_on();
+	int check_log_and_pass(const std::string& text);	
 };
 
 class Badlogin // Для исключений класс

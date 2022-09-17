@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <unistd.h>
 #include <string.h>
 #include <cstring>
 #include <fstream>
@@ -22,16 +23,16 @@ class net1 {
 	int bind_stat;
 	int connection_status;
 	
-	size_t connection;
-	char net_message[MESSAGE_LENGTH];
-    socklen_t length;
+	socklen_t length;
 public:
-	
-	
+	size_t connection;
+	char net_message[MESSAGE_LENGTH];	
 	void create_socket() {
 		socket_descriptor = socket(AF_INET, SOCK_STREAM, 0); //AF_INET -IPv4 семейство SOCK_STREAM - using TCP; 0 - умолчанию.
 		if (socket_descriptor == -1)
-			std::cout << "Socked creation failed" << std::endl;		
+			std::cout << "Socket creation failed" << std::endl;
+		else
+			std::cout << "Socket created" << std::endl;		
 	}
 	void create_bind(){
 		serveraddress.sin_addr.s_addr = htonl(INADDR_ANY); //htohl - конвертирует 32-битную беззнаковую величину из локального порядка байтов в сетевой;
@@ -42,6 +43,8 @@ public:
 		if (bind_stat == -1) {
 			std::cout << "Socket binding failed.!" << std::endl;			
 		}
+		else
+			std::cout << "bind created with port " << PORT << std::endl;
 	}
 	void listening() {
 		connection_status = listen(socket_descriptor, 5);
@@ -58,12 +61,5 @@ public:
 		if (connection == -1) {
 			std::cout << "Server is unable to accept the data from client.!" << std::endl;			
 		}
-	}
-
-	void server_work() {
-		memset(net_message, '0', MESSAGE_LENGTH);
-		size_t read_result = recv(connection, net_message, sizeof(net_message), 0);
-	}
-
-	
+	}	
 };
